@@ -1,8 +1,8 @@
 # ATOM
-I am trying to achieve a robot which has telepresence.
+Me and my teammates are trying to achieve a robot which has telepresence.
 you can control the robot as if you are present in that environment.
 
-The project basically uses image processing (Thanks to MEDIAPIPE) 
+The project uses extensive image processing (Thanks to MEDIAPIPE) 
 
 So what we intend to make is a robotic arm which can mimic the users movement.
 
