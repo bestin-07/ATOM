@@ -46,7 +46,8 @@ So now, the problems we face is the distance of users hand from the camera. Our 
 
 
 
-![image](https://user-images.githubusercontent.com/57059472/113100908-abda9a00-9219-11eb-8250-3a59160c0476.png)
+![image](https://user-images.githubusercontent.com/57059472/113101016-d0367680-9219-11eb-82d5-1280ad60f1ea.png)
+
 
 
 
