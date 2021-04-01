@@ -37,3 +37,7 @@ So now, the problems we face is the distance of users hand from the camera. Our 
 
 
 ![image](https://user-images.githubusercontent.com/57059472/113101016-d0367680-9219-11eb-82d5-1280ad60f1ea.png)
+
+I have started making the logic for servos of the robot arm. Now a basic algorithm is used to find the angle between imaginary line through center of the screen and position of my arm.
+I also need to work pon the reference sphere and its logic to get the distance from the screen. Now i just assumed it to be 30 and did the math.
+Basic trignometry is used for the finging the angle.
