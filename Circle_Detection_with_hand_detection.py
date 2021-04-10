@@ -7,22 +7,22 @@ import requests
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
-url = 'http://192.168.0.2:8080/shot.jpg'
+#url = 'http://192.168.0.12/capture'
 
-#cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(0)
 
 
 def circles(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray_blurred = cv2.blur(gray, (3, 3))
-    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 20, param1 = 200, param2 = 50, minRadius = 20, maxRadius = 60)
+    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, .9, 100, param1 = 300, param2 = 100, minRadius = 0, maxRadius = 80)
     # Draw circles that are detected.
     if detected_circles is not None:
         # Convert the circle parameters a, b and r to integers.
         detected_circles = np.uint16(np.around(detected_circles))
         for pt in detected_circles[0, :]:
             a, b, r = pt[0], pt[1], pt[2]
-            z = int(r/2.3)
+            z = (((r-39)/8)*-5)+25
             print(r,' ',z)
   
             # Draw the circumference of the circle.
@@ -35,10 +35,10 @@ def circles(image):
 
 with mp_hands.Hands(min_detection_confidence=0.5,min_tracking_confidence=0.5) as hands:
   while True:
-    img_resp = requests.get(url)
-    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-    image = cv2.imdecode(img_arr, -1) 
-#    ret, image = cap.read()  #option for webcam
+#    img_resp = requests.get(url)
+#   img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+#    image = cv2.imdecode(img_arr, -1) 
+    ret, image = cap.read()  #option for webcam
 
     image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
     image.flags.writeable = False
@@ -47,7 +47,7 @@ with mp_hands.Hands(min_detection_confidence=0.5,min_tracking_confidence=0.5) as
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     image_height, image_width, _ = image.shape
 
-    circles(image)
+    #circles(image)
 
     if results.multi_hand_landmarks:
       for hand_landmarks in results.multi_hand_landmarks:
@@ -63,7 +63,6 @@ with mp_hands.Hands(min_detection_confidence=0.5,min_tracking_confidence=0.5) as
           #f'{myradians})')
           
     cv2.imshow('MediaPipe Hands', image)
-    #cv2.imshow('MediaPipe Hand', image1)
     if cv2.waitKey(5) & 0xFF == 27:
       break
 cap.release()

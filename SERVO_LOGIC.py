@@ -3,13 +3,22 @@ import mediapipe as mp
 import math
 import numpy as np
 import requests
+import serial
+import time
+
+
+arduino = serial.Serial(port='COM5', baudrate=115200, timeout=.1)
+def write_read(x):
+	arduino.write(x.encode())
+	data = arduino.readline()
+	return data
 
 ###################  initializations  ################################################################
 mp_drawing = mp.solutions.drawing_utils
 mp_hands = mp.solutions.hands
 
-url = 'http://192.168.0.2:8080/shot.jpg'
-#cap = cv2.VideoCapture(0)
+#url = 'http://192.168.43.206:8080/shot.jpg'
+cap = cv2.VideoCapture(0)
 
 x=y=0
 zmem = 30 #For the memory of the previous z value and 30 is an initial z value
@@ -27,7 +36,7 @@ def zvalue(image):
         detected_circles = np.uint16(np.around(detected_circles))
         for pt in detected_circles[0, :]:
             a, b, r = pt[0], pt[1], pt[2]
-            z =  r/2.3
+            z =  r
             #print(r,' ',z)
 			# Draw the circumference of the circle.
             cv2.circle(image, (a, b), r, (0, 255, 0), 2)
@@ -52,17 +61,20 @@ def angle_calculator(x,y,z):
 		print('RIGHT',' ',angle )		
 	else:
 		print('LEFT',' ',angle)
+	angle = str(angle)
+	#print(angle)
+	print(write_read(angle))
 ######################################################################################################
 
 
 ############################## Hand Detection ########################################################
 with mp_hands.Hands(min_detection_confidence=0.5,min_tracking_confidence=0.5) as hands:
   while True:
-    img_resp = requests.get(url)
-    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-    image = cv2.imdecode(img_arr, -1)
-    image = cv2.flip(image, 1) 
-#    ret, image = cap.read()  #option for webcam
+#    img_resp = requests.get(url)
+#    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+#    image = cv2.imdecode(img_arr, -1)
+#    image = cv2.flip(image, 1) 
+    ret, image = cap.read()  #option for webcam
 
     image = cv2.cvtColor(cv2.flip(image, 1), cv2.COLOR_BGR2RGB)
     image.flags.writeable = False
