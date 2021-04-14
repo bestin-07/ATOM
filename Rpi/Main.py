@@ -1,15 +1,29 @@
 
-#################################  initializations  ##################################################
+#################################  Initializations  ##################################################
 import cv2
 import numpy as np
-#import requests                                # For Ip
-#url = 'http://192.168.43.206:8080/shot.jpg'
+import requests                               
 
+#url = 'http://192.168.0.3:8080/shot.jpg'            # For Ip
 cap = cv2.VideoCapture(0)                       # For webcam input
 
-x=y=0                                           
+x=y=x1=x2=y1=y2=0                                           
 zmem = 30 #For the memory of the previous z value and 30 is an initial z value
+
+############################### Connecting To Arduino ###############################################
+import serial
+import time
+arduino = serial.Serial('COM5', 9600, timeout=0)
+time.sleep(2)
 ######################################################################################################
+
+
+
+def communicator(x,xdir,y,ydir):
+    import struct
+    # send the first int in binary format
+    arduino.write(struct.pack('>BBBB',x,xdir,y,ydir))
+
 
 
 
@@ -17,7 +31,7 @@ zmem = 30 #For the memory of the previous z value and 30 is an initial z value
 def zvalue(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray_blurred = cv2.blur(gray, (3, 3))
-    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 50, param2 = 50, minRadius = 10, maxRadius = 50)
+    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 1500, param2 = 40, minRadius = 5, maxRadius = 120)
     # Draw circles that are detected.
     if detected_circles is not None:
         # Convert the circle parameters a, b and r to integers.
@@ -40,18 +54,36 @@ def zvalue(image):
 ############################## Calculating the angle #################################################
 def angle_calculator(x,y,z):
     import math
+    dirx = diry = 1
     # add a if with contiton that robot spherical ball should be within range of obtained x,y,z for robot logic to work
-    xcm = (x * .02171875) - 6.95   #since we take value from half of the sceen. width = 13.9 cm  = .02171875 cm per pixel
+    xcm = (x * .02171875) - 6.95   #since we take value from half of the sceen. width = 13.9 cm  = .02171875 cm per pixel 
+    ycm = (y * .02171875) - 5.4    #since we take value from half of the sceen. height = 10.8 cm  = .02171875 cm per pixel 
+    ######## x values
     if z is not None:
-        angle = math.degrees(math.atan2(xcm,z))
+        anglex = int(math.degrees(math.atan2(xcm,z)))
     else:
-        angle = math.degrees(math.atan2(xcm,30))    
+        anglex = int(math.degrees(math.atan2(xcm,30)))    
     if x > 320:
-        print('RIGHT',' ',angle )       
+        print('X-RIGHT',' ',anglex)       
     else:
-        print('LEFT',' ',angle)
-    angle = str(angle)
-    print(angle, ' ', z)
+        print('X-LEFT',' ',-anglex)
+        anglex = -anglex
+        dirx = 0
+    
+    ######## y values
+    if z is not None:
+        angley = int(math.degrees(math.atan2(ycm,z)))
+    else:
+        angley = int(math.degrees(math.atan2(ycm,30)))    
+    if y < 240:
+        print('Y-UP',' ',-angley)
+        angley = -angley       
+    else:
+        print('Y-DOWN',' ',angley)
+        diry = 0
+
+
+    communicator(anglex,dirx,angley,diry)    
 ######################################################################################################
 
 
@@ -61,7 +93,7 @@ def angle_calculator(x,y,z):
 ######################################### PROCESSING #################################################
 import mediapipe as mp
 mp_hands = mp.solutions.hands
-hands = mp_hands.Hands(min_detection_confidence=0.5,min_tracking_confidence=0.5)
+hands = mp_hands.Hands(min_detection_confidence=0.6,min_tracking_confidence=0.5)
 
 while True:
     success, image = cap.read()
@@ -90,11 +122,15 @@ while True:
             y1 = int((hand_landmarks.landmark[4].y )* height)
             x2 = int((hand_landmarks.landmark[0].x )* width)
             y2 = int((hand_landmarks.landmark[0].y )* height)
-            cv2.line(image, (x1,y1), (x2,y2), (255,0,0), 2)
-            angle_calculator(x1,y1,zmem)
             #print(zmem)
+    cv2.line(image, (x1,y1), (x2,y2), (255,0,0), 2)
+    angle_calculator(x1,y1,zmem)
     cv2.imshow('MediaPipe Hands', image)
     if cv2.waitKey(5) & 0xFF == 27:
         break
-hands.close()
 ######################################################################################################
+
+
+################################ CLEANING UP #########################################################
+arduino.close()
+hands.close()
