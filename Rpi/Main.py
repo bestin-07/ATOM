@@ -4,10 +4,10 @@ import numpy as np
 
 ###################  initializations  ################################################################
 
-#import requests                                #For Ip
-#url = 'http://192.168.43.206:8080/shot.jpg'
+import requests                                #For Ip
+url = 'http://192.168.0.3:8080/shot.jpg'
 
-cap = cv2.VideoCapture(0)                       # For webcam input
+#cap = cv2.VideoCapture(0)                       # For webcam input
 
 
 x=y=0
@@ -45,11 +45,11 @@ import mediapipe as mp
 mp_hands = mp.solutions.hands
 hands= mp_hands.Hands(min_detection_confidence=0.5,min_tracking_confidence=0.5)
 while True:
-    success, image = cap.read()
-#    img_resp = requests.get(url)
-#    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-#    image = cv2.imdecode(img_arr, -1)
-#    image = cv2.flip(image, 1)
+#    success, image = cap.read()
+    img_resp = requests.get(url)
+    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+    image = cv2.imdecode(img_arr, -1)
+    image = cv2.flip(image, 1)
         
     # Flip the image horizontally for a later selfie-view display, and convert
     # the BGR image to RGB.
