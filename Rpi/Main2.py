@@ -32,7 +32,7 @@ def communicator(x,xdir,y,ydir):
 def zvalue(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray_blurred = cv2.blur(gray, (3, 3))
-    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 100, param2 = 40, minRadius = 5, maxRadius = 120)
+    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 1000, param2 = 40, minRadius = 5, maxRadius = 120)
     # Draw circles that are detected.
     if detected_circles is not None:
         # Convert the circle parameters a, b and r to integers.
@@ -98,11 +98,11 @@ hands = mp_hands.Hands(min_detection_confidence=0.6,min_tracking_confidence=0.5)
 
 while True:
     #success, image = cap.read()
-    img_resp = requests.get(url1)
+    img_resp = requests.get(url2)
     img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
     image = cv2.imdecode(img_arr, -1)
     image = cv2.flip(image, 1)
-    img_resp = requests.get(url2)
+    img_resp = requests.get(url1)
     img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
     image2 = cv2.imdecode(img_arr, -1)
     image2 = cv2.flip(image2, 1)
@@ -130,7 +130,7 @@ while True:
             y2 = int((hand_landmarks.landmark[0].y )* height)
             #print(zmem)
     cv2.line(image, (x1,y1), (x2,y2), (255,0,0), 2)
-    angle_calculator(x1,y1,zmem)
+    angle_calculator(x2,y2,zmem)
     cv2.imshow('MediaPipe Hands', image)
     cv2.imshow('MediaPipe Hands111', image2)
     if cv2.waitKey(5) & 0xFF == 27:

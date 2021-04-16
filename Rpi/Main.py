@@ -4,26 +4,18 @@ import cv2
 import numpy as np
 import requests                               
 
-#url = 'http://192.168.0.14/capture' #'http://192.168.0.6:8080/shot.jpg'            # For Ip
-cap = cv2.VideoCapture(0)                       # For webcam input
+url = 'http://192.168.0.6:8080/shot.jpg'#'http://192.168.0.14/capture'             # For Ip
+#cap = cv2.VideoCapture(0)                       # For webcam input
 
 x=y=x1=x2=y1=y2=0                                           
 zmem = 30 #For the memory of the previous z value and 30 is an initial z value
 
-<<<<<<< HEAD
-import requests                                #For Ip
-url = 'http://192.168.0.3:8080/shot.jpg'
-
-#cap = cv2.VideoCapture(0)                       # For webcam input
-=======
 ############################### Connecting To Arduino ###############################################
 import serial
 import time
-arduino = serial.Serial('COM5', 9600, timeout=0)
+arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=0)
 time.sleep(2)
 ######################################################################################################
-
->>>>>>> 22f488e7106d5bcafc4783aa68196b3c8bed2ee9
 
 
 def communicator(x,xdir,y,ydir):
@@ -103,19 +95,11 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.6,min_tracking_confidence=0.5)
 
 while True:
-<<<<<<< HEAD
 #    success, image = cap.read()
     img_resp = requests.get(url)
     img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
     image = cv2.imdecode(img_arr, -1)
     image = cv2.flip(image, 1)
-=======
-    success, image = cap.read()
-    #img_resp = requests.get(url)
-    #img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-    #image = cv2.imdecode(img_arr, -1)
-    #image = cv2.flip(image, 1)
->>>>>>> 22f488e7106d5bcafc4783aa68196b3c8bed2ee9
         
     # Flip the image horizontally for a later selfie-view display, and convert
     # the BGR image to RGB.
