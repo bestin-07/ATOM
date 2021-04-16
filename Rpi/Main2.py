@@ -4,17 +4,18 @@ import cv2
 import numpy as np
 import requests                               
 
-#url = 'http://192.168.0.14/capture' #'http://192.168.0.6:8080/shot.jpg'            # For Ip
-cap = cv2.VideoCapture(0)                       # For webcam input
+url1 = 'http://192.168.0.14/capture'             # For Ip
+url2 = 'http://192.168.0.6:8080/shot.jpg'
+#cap = cv2.VideoCapture(0)                       # For webcam input
 
 x=y=x1=x2=y1=y2=0                                           
 zmem = 30 #For the memory of the previous z value and 30 is an initial z value
 
 ############################### Connecting To Arduino ###############################################
-import serial
-import time
-arduino = serial.Serial('COM5', 9600, timeout=0)
-time.sleep(2)
+#import serial
+#import time
+#arduino = serial.Serial('COM5', 9600, timeout=0)
+#time.sleep(2)
 ######################################################################################################
 
 
@@ -31,7 +32,7 @@ def communicator(x,xdir,y,ydir):
 def zvalue(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray_blurred = cv2.blur(gray, (3, 3))
-    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 1000, param2 = 40, minRadius = 5, maxRadius = 120)
+    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 100, param2 = 40, minRadius = 5, maxRadius = 120)
     # Draw circles that are detected.
     if detected_circles is not None:
         # Convert the circle parameters a, b and r to integers.
@@ -83,7 +84,7 @@ def angle_calculator(x,y,z):
         diry = 0
 
 
-    communicator(anglex,dirx,angley,diry)    
+    #communicator(anglex,dirx,angley,diry)    
 ######################################################################################################
 
 
@@ -96,11 +97,15 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.6,min_tracking_confidence=0.5)
 
 while True:
-    success, image = cap.read()
-    #img_resp = requests.get(url)
-    #img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-    #image = cv2.imdecode(img_arr, -1)
-    #image = cv2.flip(image, 1)
+    #success, image = cap.read()
+    img_resp = requests.get(url1)
+    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+    image = cv2.imdecode(img_arr, -1)
+    image = cv2.flip(image, 1)
+    img_resp = requests.get(url2)
+    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+    image2 = cv2.imdecode(img_arr, -1)
+    image2 = cv2.flip(image2, 1)
         
     # Flip the image horizontally for a later selfie-view display, and convert
     # the BGR image to RGB.
@@ -116,6 +121,7 @@ while True:
     height = image.shape[0]
     width = image.shape[1]
     zmem = zvalue(image)
+    zrobo = zvalue(image2)
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             x1 = int((hand_landmarks.landmark[4].x )* width)
@@ -126,6 +132,7 @@ while True:
     cv2.line(image, (x1,y1), (x2,y2), (255,0,0), 2)
     angle_calculator(x1,y1,zmem)
     cv2.imshow('MediaPipe Hands', image)
+    cv2.imshow('MediaPipe Hands111', image2)
     if cv2.waitKey(5) & 0xFF == 27:
         break
 ######################################################################################################
