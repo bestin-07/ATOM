@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 import requests                               
 
-#url = 'http://192.168.0.3:8080/shot.jpg'            # For Ip
+#url = 'http://192.168.0.6:8080/shot.jpg'            # For Ip
 cap = cv2.VideoCapture(0)                       # For webcam input
 
 x=y=x1=x2=y1=y2=0                                           
@@ -31,7 +31,7 @@ def communicator(x,xdir,y,ydir):
 def zvalue(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray_blurred = cv2.blur(gray, (3, 3))
-    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 1500, param2 = 40, minRadius = 5, maxRadius = 120)
+    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 100, param2 = 40, minRadius = 5, maxRadius = 120)
     # Draw circles that are detected.
     if detected_circles is not None:
         # Convert the circle parameters a, b and r to integers.
@@ -64,9 +64,9 @@ def angle_calculator(x,y,z):
     else:
         anglex = int(math.degrees(math.atan2(xcm,30)))    
     if x > 320:
-        print('X-RIGHT',' ',anglex)       
+        print('X-RIGHT',' ',anglex," Degrees")       
     else:
-        print('X-LEFT',' ',-anglex)
+        print('X-LEFT',' ',-anglex," Degrees")
         anglex = -anglex
         dirx = 0
     
@@ -76,10 +76,10 @@ def angle_calculator(x,y,z):
     else:
         angley = int(math.degrees(math.atan2(ycm,30)))    
     if y < 240:
-        print('Y-UP',' ',-angley)
+        print('Y-UP',' ',-angley," Degrees")
         angley = -angley       
     else:
-        print('Y-DOWN',' ',angley)
+        print('Y-DOWN',' ',angley, "Degrees")
         diry = 0
 
 
