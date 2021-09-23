@@ -16,7 +16,7 @@ void loop(){
     }
 
     // use the values
-    for(int i=0;i<incoming[0];i++)
+    for(int i=0;i<incoming[1];i++)
     {
       digitalWrite(LED_BUILTIN,HIGH);
       delay(200);
@@ -32,7 +32,7 @@ void loop(){
       delay(200);
     }
     delay(1000);
-    for(int i=0;i<incoming[2];i++)
+    for(int i=0;i<incoming[1];i++)
     {
       digitalWrite(LED_BUILTIN,HIGH);
       delay(200);
@@ -40,7 +40,7 @@ void loop(){
       delay(200);
     }   
     delay(1000);
-    for(int i=0;i<incoming[3];i++)
+    for(int i=0;i<incoming[1];i++)
     {
       digitalWrite(LED_BUILTIN,HIGH);
       delay(200);

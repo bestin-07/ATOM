@@ -4,8 +4,8 @@ import cv2
 import numpy as np
 import requests                               
 
-url = 'http://192.168.0.6:8080/shot.jpg'#'http://192.168.0.14/capture'             # For Ip
-#cap = cv2.VideoCapture(0)                       # For webcam input
+#url = 'http://192.168.0.6:8080/shot.jpg'#'http://192.168.0.14/capture'             # For Ip
+cap = cv2.VideoCapture(0)                       # For webcam input
 
 x=y=x1=x2=y1=y2=0                                           
 zmem = 30 #For the memory of the previous z value and 30 is an initial z value
@@ -13,15 +13,15 @@ zmem = 30 #For the memory of the previous z value and 30 is an initial z value
 ############################### Connecting To Arduino ###############################################
 import serial
 import time
-arduino = serial.Serial('COM5', 9600, timeout=0)
+#arduino = serial.Serial('COM5', 9600, timeout=0)
 time.sleep(2)
 ######################################################################################################
 
 
-def communicator(x,xdir,y,ydir):
+def communicator(x,xdir,y,ydir,zlength):
     import struct
     # send the first int in binary format
-    arduino.write(struct.pack('>BBBB',x,xdir,y,ydir))
+    arduino.write(struct.pack('>BBBBB',x,xdir,y,ydir,zlength))
 
 
 
@@ -30,7 +30,7 @@ def communicator(x,xdir,y,ydir):
 def zvalue(image):
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     gray_blurred = cv2.blur(gray, (3, 3))
-    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 1000, param2 = 40, minRadius = 5, maxRadius = 120)
+    detected_circles = cv2.HoughCircles(gray_blurred,cv2.HOUGH_GRADIENT, 1, 2000, param1 = 100, param2 = 50, minRadius = 2, maxRadius = 120)
     # Draw circles that are detected.
     if detected_circles is not None:
         # Convert the circle parameters a, b and r to integers.
@@ -44,6 +44,8 @@ def zvalue(image):
   
             # Draw a small circle (of radius 1) to show the center.
             cv2.circle(image, (a, b), 1, (0, 0, 255), 3)
+            if z < 10:
+                z = zmem
             return z
     else:
         return zmem
@@ -59,9 +61,9 @@ def angle_calculator(x,y,z):
     ycm = (y * .02171875) - 5.4    #since we take value from half of the sceen. height = 10.8 cm  = .02171875 cm per pixel 
     ######## x values
     if z is not None:
-        anglex = int(math.degrees(math.atan2(xcm,z)))
+        anglex = int(math.degrees(math.atan2(xcm,30))*10) #replace with z for dynamic angle results
     else:
-        anglex = int(math.degrees(math.atan2(xcm,30)))    
+        anglex = int(math.degrees(math.atan2(xcm,30))*10) 
     if x > 320:
         print('X-RIGHT',' ',anglex," Degrees")       
     else:
@@ -71,18 +73,18 @@ def angle_calculator(x,y,z):
     
     ######## y values
     if z is not None:
-        angley = int(math.degrees(math.atan2(ycm,z)))
+        angley = int(math.degrees(math.atan2(ycm,30))*10) #replace with z for dynamic angle results
     else:
-        angley = int(math.degrees(math.atan2(ycm,30)))    
-    if y < 240:
+        angley = int(math.degrees(math.atan2(ycm,30))*10)    
+    if y < 250:
         print('Y-UP',' ',-angley," Degrees")
         angley = -angley       
     else:
         print('Y-DOWN',' ',angley, "Degrees")
         diry = 0
-
-
-    communicator(anglex,dirx,angley,diry)    
+    z = int(z*1)
+    #print('Z = ',z)
+    #communicator(anglex,dirx,angley,diry,z)    Open when need SERIAL Communication
 ######################################################################################################
 
 
@@ -95,11 +97,11 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(min_detection_confidence=0.6,min_tracking_confidence=0.5)
 
 while True:
-#    success, image = cap.read()
-    img_resp = requests.get(url)
-    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
-    image = cv2.imdecode(img_arr, -1)
-    image = cv2.flip(image, 1)
+    success, image = cap.read()
+#    img_resp = requests.get(url)
+#    img_arr = np.array(bytearray(img_resp.content), dtype=np.uint8)
+#    image = cv2.imdecode(img_arr, -1)
+#    image = cv2.flip(image, 1)
         
     # Flip the image horizontally for a later selfie-view display, and convert
     # the BGR image to RGB.
@@ -114,7 +116,7 @@ while True:
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
     height = image.shape[0]
     width = image.shape[1]
-    zmem = zvalue(image)
+    zmem = 30
     if results.multi_hand_landmarks:
         for hand_landmarks in results.multi_hand_landmarks:
             x1 = int((hand_landmarks.landmark[4].x )* width)

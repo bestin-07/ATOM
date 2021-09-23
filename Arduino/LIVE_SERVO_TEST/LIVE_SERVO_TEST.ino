@@ -26,11 +26,11 @@ void loop(){
 
     if(incoming[1]==0)
     {
-      value = 90 - (incoming[0]*10);
+      value = 90 - (incoming[0]);
     }
     else
     {
-      value = 90 + (incoming[0]*10);
+      value = 90 + (incoming[0]);
     }
        Servo1.write(value); 
 
