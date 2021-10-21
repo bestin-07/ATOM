@@ -9,6 +9,6 @@ Our interface allows users to control their point of view in the scene using vir
 The movement of the camera in the scene is controlled by the movement of a virtual reality headset worn by the user. We also designed a positional tracking system ‘BUCKMINSTER’ that maps the movements of tracked reference to get desired end effector movement. This interface allows the operator to move the robot’s effector in real space by moving their own hands. Combining them, we have a “dynamic experience” or “Tele-Presence” along with improved situational awareness while dealing with hazardous & complex situations.
 
 
-
+More on atom -> https://lnkd.in/gikAgeyC
 
 
